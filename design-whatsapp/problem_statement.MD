@@ -19,7 +19,7 @@ Design WhatsApp (core messaging). Scope only what’s needed for a v1 that still
 - Durability: 11 nines for message storage until all recipients ack 
 - Scale assumptions (for sizing, not limits):  
  **  2B MAU, 500M DAU, peak 50M concurrent  
- ** Peak ingress: 25M msgs/sec global; fanout average 1.8x (due to groups)  
+ ** Peak ingress(user-to-server write traffic): 25M msgs/sec global; fanout average 1.8x (due to groups)  
  ** Media: 70 PB stored, 20 Tbps egress peak  
 
 ## Constraints:

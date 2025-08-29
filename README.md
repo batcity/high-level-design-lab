@@ -4,3 +4,5 @@ A collection of system design explorations, diagrams, and notes as I learn how t
 Each folder documents a different system, covering core components, trade-offs, and high-level architecture.
 
 📌 Goal: Build a personal knowledge base of system design patterns and practices.
+
+Note: I've used AI and other system design resources to help me understand/refine these designs
