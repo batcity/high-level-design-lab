@@ -1,8 +1,33 @@
-# high-level-design-lab
+# high-level-design-lab  
 
-A collection of system design explorations, diagrams, and notes as I learn how to design scalable and reliable systems.
-Each folder documents a different system, covering core components, trade-offs, and high-level architecture.
+A personal collection of **system design explorations, diagrams, and notes** as I learn how to design scalable, reliable, and secure systems.  
 
-📌 Goal: Build a personal knowledge base of system design patterns and practices.
+Each folder covers a different system (e.g., WhatsApp, YouTube, Twitter), documenting the **problem framing, assumptions, architecture, trade-offs, and key learnings**.  
 
-Note: I've used AI and other system design resources to help me understand/refine these designs
+📌 **Goal:** Build a structured knowledge base of system design **patterns, practices, and back-of-the-envelope reasoning** that I can reuse for interviews and real-world design work.  
+
+⚡ **Note:** These designs are for **learning and discussion** purposes. I’ve used a mix of research, reading, and AI-assisted reasoning to refine them.  
+
+---
+
+## 📂 Study Notes Structure  
+
+Each system write-up follows the same template for consistency:  
+
+1. **Problem statement** – What we’re building and the scope.  
+2. **Assumptions & scale** – Traffic, users, constraints.  
+3. **Back-of-the-envelope calculations** – Storage, throughput, latency.  
+4. **Data model / DB schema sketch** – Core entities and relationships.  
+5. **System architecture diagram** – High-level components and interactions.  
+6. **Critical flows** – E.g., message send, media upload, feed generation.  
+7. **Non-functional requirements** – Latency, availability, durability, cost.  
+8. **Trade-offs & alternatives** – Different approaches and design choices.  
+9. **Extensions / next steps** – Features or improvements not in v1.  
+
+---
+
+## 🚀 Why this repo?  
+
+- Build intuition for **scalability and reliability**.  
+- Practice **structured thinking** under interview-style time limits.  
+- Create a **reusable library** of design blueprints and patterns.  
