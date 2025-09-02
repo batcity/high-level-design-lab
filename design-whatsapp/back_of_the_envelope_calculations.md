@@ -1,36 +1,43 @@
-# Storage:
+# Back of the Envelope estimates:
 
-If there's 2B monthly active users
+This document provides a rough storage model for a messaging platform like whatsapp with **2 billion monthly active users (MAUs)**.  
 
-they have two types of content that need to be stored
+Two main categories of content need to be stored:
 
-1. actual messages - plaintext
-2. media (photographs, images, gifs, documents etc)
+1. **Messages** – plain text.  
+2. **Media** – photos, images, GIFs, documents, etc. (not covered in detail here).  
 
+---
 
-## Messages:
+## Message Storage Assumptions
 
-Now on average im going to assume each user sends about 300 new messages a month (10 new messages a day)
+- **Users:** 2 billion daily active users (DAUs).  
+- **Messages per User:** 10 messages/day → ~300 messages/month.  
+- **Message Size:** 300 characters (≈300 bytes, assuming ASCII).  
+  - Note: UTF-8 or other encodings may increase the footprint depending on character set.  
+- **Metadata Overhead:** ~50% of message size (sender/receiver IDs, timestamps, delivery/read receipts, encryption headers, etc.).  
+- **Durability:** Replication factor of 3 (standard practice for fault tolerance and high availability).  
 
-and im going to assume each message has about 50 words or 300 characters
+> **Disclaimer:** These assumptions are for *order-of-magnitude estimation only*. They are not based on real-world WhatsApp statistics.  
 
-so every month they'd be adding
+---
 
-300 messages * 300 characters = 90000 characters to the system
+## Storage Calculation
 
-An ASCII character in UTF-8 is 8 bits (1 byte)
+1. **Per Message:**  
+   - 300 bytes (text) + 150 bytes (metadata) = **450 bytes**.  
 
-so 90000 characters would equate to 90000 bytes -> 0.1 megabyte
+2. **Per User (monthly):**  
+   - 300 messages × 450 bytes = **0.135 MB**.  
 
-so 0.1 * 2B = 200 TB of messages get added every month
+3. **All Users (monthly, raw):**  
+   - 0.135 MB × 2B users = **270 TB**.  
 
-so I'd need to add 200 TB of storage to the system every month either by purchasing cloud storage or actual server racks
+4. **All Users (monthly, with replication):**  
+   - 270 TB × 3 = **810 TB**.  
 
-Note: I made the mistake of assuming that we'd only be storing the messages once which is terribe for durability
+---
 
-I also missed out on metadata on the messages so that would add storage as well
+## Conclusion
 
-
-
-
-
+A messaging system with 2B DAUs would need to provision **~810 TB of storage per month** for text messages alone, not including media.  
