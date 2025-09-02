@@ -11,9 +11,9 @@ Two main categories of content need to be stored:
 
 ## Message Storage Assumptions
 
-- **Users:** 2 billion daily active users (DAUs).  
+- **Users:** 2 billion monthly active users (MAUs).  
 - **Messages per User:** 10 messages/day → ~300 messages/month.  
-- **Message Size:** 300 characters (≈300 bytes, assuming ASCII).  
+- **Message Size:** 300 characters (≈300 bytes, assuming ASCII for simplicity).  
   - Note: UTF-8 or other encodings may increase the footprint depending on character set.  
 - **Metadata Overhead:** ~50% of message size (sender/receiver IDs, timestamps, delivery/read receipts, encryption headers, etc.).  
 - **Durability:** Replication factor of 3 (standard practice for fault tolerance and high availability).  
