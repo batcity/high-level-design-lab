@@ -40,4 +40,4 @@ Two main categories of content need to be stored:
 
 ## Conclusion
 
-A messaging system with 2B DAUs would need to provision **~810 TB of storage per month** for text messages alone, not including media.  
+A messaging system with 2B MAUs would need to provision **~810 TB of storage per month** for text messages alone, not including media.  
