@@ -14,3 +14,8 @@ a single conversation incase it's a group
 - User sends messages
 - Messages are a part of conversations
 - Users are participants in conversations
+
+
+3. ER Diagram:
+
+    ![alt text](er_model.png)
