@@ -17,10 +17,10 @@ Each system write-up follows the same template for consistency:
 1. **Problem statement** – What we’re building and the scope.  
 2. **Assumptions & scale** – Traffic, users, constraints.  
 3. **Back-of-the-envelope calculations** – Storage, throughput, latency.  
-4. **Data model / DB schema sketch** – Core entities and relationships.  
-5. **System architecture diagram** – High-level components and interactions.  
-6. **Critical flows** – E.g., message send, media upload, feed generation.  
-7. **Non-functional requirements** – Latency, availability, durability, cost.  
+4. **Non-functional requirements** – Latency, availability, durability, cost.  
+5. **Data model / DB schema sketch** – Core entities and relationships.  
+6. **System architecture diagram** – High-level components and interactions.  
+7. **Critical flows** – E.g., message send, media upload, feed generation.  
 8. **Trade-offs & alternatives** – Different approaches and design choices.  
 9. **Extensions / next steps** – Features or improvements not in v1.  
 

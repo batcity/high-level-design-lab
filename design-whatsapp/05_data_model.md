@@ -5,7 +5,7 @@
 - User: Represents whatsapp users
 - Messages: Represents messages sent by users
 - Conversations: Represents each conversation that a user is part of
-- Conversation Participants: Represents the participants of conversations - example: muliple users can be part of
+- Conversation Participants: Represents the participants of conversations - example: multiple users can be part of
 a single conversation incase it's a group
 
 
