@@ -65,3 +65,8 @@ here's an example for that -> snowflake ID -> https://en.wikipedia.org/wiki/Snow
 | user_id          | UUID / BIGINT | foreign key, globally unique                             |
 | conversation_id          | UUID / BIGINT | foreign key, globally unique                             |
 
+
+TODO: 
+
+- Add indexing information
+- Add ability to send/receive media in addition to text messages
