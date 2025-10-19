@@ -22,8 +22,8 @@ Each system write-up follows the same template for consistency:
 6. **System architecture diagram** – High-level components and interactions.  
 7. **Critical flows** – E.g., message send, media upload, feed generation.  
 8. **Tech stack and components** - Key technologies and frameworks for each layer.
-8. **Trade-offs & alternatives** – Different approaches and design choices.  
-9. **Extensions / next steps** – Features or improvements not in v1.  
+9. **Trade-offs & alternatives** – Different approaches and design choices.  
+10. **Extensions / next steps** – Features or improvements not in v1.  
 
 ---
 

@@ -6,13 +6,21 @@ The stack combines **relational + NoSQL databases**, **real-time messaging infra
 
 ## 🌐 API Gateway
 
-**Chosen:** **Envoy**  
+**Chosen:** **Envoy**
 
-- High-performance L7 proxy; supports HTTP/2, gRPC, WebSockets.  
-- Integrates with service meshes (Istio, Consul) for observability and resilience.  
-- Handles **load balancing, rate limiting, authentication, and TLS termination**.  
+- **High-performance Layer 7 proxy** that serves as the **edge gateway** — the entry point for all client traffic.  
+- Handles **TLS termination**, **load balancing**, **authentication**, **rate limiting**, and **traffic routing** to backend services.  
+- Natively supports **HTTP/2**, **gRPC**, and **WebSockets**, making it ideal for persistent, real-time connections (e.g., chat sessions).  
+- Integrates with **service meshes** like *Istio* or *Consul* to provide advanced observability, resilience, and traffic control.  
+- Scales efficiently to handle millions of concurrent connections with low latency.
 
-**Alternatives:** Kong (rich plugins, easier setup), KrakenD (API aggregation).
+### Why Envoy?
+At WhatsApp scale, the “API Gateway” primarily acts as a **high-throughput edge proxy** rather than a full API management platform.  
+Envoy’s performance, extensibility, and modern protocol support make it the right foundation for this role.
+
+### Alternatives
+- **Kong** – Feature-rich API gateway with plugins and admin UI; better for public API management.  
+- **KrakenD** – Lightweight gateway focused on API aggregation and transformation.
 
 
 ## 💬 Core Services
@@ -160,23 +168,3 @@ Used for:
 
 
 📘 *This stack is designed for learning and reasoning about production-scale distributed messaging systems — not a literal WhatsApp implementation.*
-
-## User Authentication Service, Message Persistence service and Media upload service:
-
-I'd use a REST Service build using Spring boot (see Message service above for reasoning)
-
-## Database:
-
-I'd use something like Spanner for the Database considering the data model is highly relational, Spanner allows devs to scale horizontally pretty easily so it should be easy to scale it up to tens of millions of concurrent users
-
-## CDN:
-
-I'd use Akamai mostly since that's the only one i know lol
-
-## Cloud storage:
-
-S3 -> since this scale to store any amount of data
-
-## Other:
-
-I would use websockets to maintain a persistent connection between users who are online and the fan out web service that delivers messages to the users
