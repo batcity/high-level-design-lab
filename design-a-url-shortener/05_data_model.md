@@ -20,17 +20,17 @@
 
 | Attribute | Type | Notes |
 |-----------|-----------|-----------|
-| userId | long | Auto incrementing counter (primary key) |
+| user_id | BIGINT | Auto incrementing counter (primary key) |
 | username | varchar(32) | User defined username |
-| password | varchar(32) | Encrypted password |
-| emailId | varchar(32) | |
+| password | VARCHAR(255) | hashed password |
+| email | VARCHAR(255) | Unique per acccount |
 
 
 **urls table:**
 
-
-| Attribute | Type | Notes |
-|-----------|-----------|-----------|
-| url | String | String that represents a standard URL |
-| shortenedURL | varchar(10) |  |
-| userId | long | foreign key |
+| Attribute     | Type        | Notes                       |
+| ------------- | ----------- | --------------------------- |
+| url_id        | BIGINT      | Primary Key, auto-increment |
+| url           | TEXT        | Original URL                |
+| shortened_url | VARCHAR(10) | Unique, indexed             |
+| user_id       | BIGINT      | Foreign key to users        |
