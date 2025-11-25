@@ -40,3 +40,20 @@ This means an attacker cannot alter the payload (for example, changing "admin": 
 | 4 | **User (Browser)** | Automatically interprets the 302 response and sends a new **GET** request to the URL specified in the `Location` header. |
 
 ## 3. Access saved URLs:
+
+Note: These actions would only be allowed after the user logs in to the service
+
+| Step | Component | Action |
+|------|------------|--------|
+| 1 | **User → API Gateway → URL Shortener Service** | This view lets the user view all their saved URLs using an endpoint such as a GET /userId/savedURLs |
+| 2 | **URL Shortener** | Looks up the URLs saved by the user  in the data store and retrieves them.|
+
+
+## 4. save a URL to their dashboard:
+
+Note: These actions would only be allowed after the user logs in to the service
+
+| Step | Component | Action |
+|------|------------|--------|
+| 1 | **User → API Gateway → URL Shortener Service** | user Sends a shortened URL along with the original URL using an endpoint such as a POST /userId/savedURL to save it in the datastore |
+| 2 | **URL Shortener** | Saves the URL in the datastore and returns a 200 to indicate that the save request was successful.|
