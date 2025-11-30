@@ -41,19 +41,23 @@ This means an attacker cannot alter the payload (for example, changing "admin": 
 
 ## 3. Access saved URLs:
 
-Note: These actions would only be allowed after the user logs in to the service
+Note: These actions would only be allowed after the user logs in to the service -> the user would get a JWT when they login and that's used as the means of authentication in this flow
 
-| Step | Component | Action |
-|------|------------|--------|
-| 1 | **User → API Gateway → URL Shortener Service** | This view lets the user view all their saved URLs using an endpoint such as a GET /userId/savedURLs |
-| 2 | **URL Shortener** | Looks up the URLs saved by the user  in the data store and retrieves them.|
+| Step | Component                            | Action                                                                                                                                                                             |
+| ---- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | **User → API Gateway → URL Service** | `GET /me/urls?page=1&size=20&sort=created_at:desc` with `Authorization: Bearer <jwt>`                                                                                              |
+| 2    | **API Gateway**                      | Validates JWT (signature + expiry). Injects `user_id` from token into downstream request or sets header `X-User-Id`. Reject if token invalid.                                      |
+| 3    | **URL Service**                      | Authorizes: ensure `X-User-Id` == owner id used for DB query. Query datastore with index on `owner_id`, apply pagination, filters, and return list + metadata (total, page, size). |
+| 4    | **URL Service → API Gateway → User** | Returns `200 OK` with JSON: `{ items:[...], page, size, total }`.                                                                |
 
 
-## 4. save a URL to their dashboard:
+## 4. Save a URL to their dashboard:
 
-Note: These actions would only be allowed after the user logs in to the service
+Note: These actions would only be allowed after the user logs in to the service -> the user would get a JWT when they login and that's used as the means of authentication in this flow
 
-| Step | Component | Action |
-|------|------------|--------|
-| 1 | **User → API Gateway → URL Shortener Service** | user Sends a shortened URL along with the original URL using an endpoint such as a POST /userId/savedURL to save it in the datastore |
-| 2 | **URL Shortener** | Saves the URL in the datastore and returns a 200 to indicate that the save request was successful.|
+| Step | Component                            | Action                                                                                                                                                                                                                                                                                                             |
+|------|--------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1    | **User → API Gateway → URL Service** | `POST /me/urls` with body `{ "long_url": "...", "custom_short": "abc" (optional), "tags": [], "visibility": "private" }` and header `Authorization: Bearer <jwt>`                                                                                                                                                  |
+| 2    | **API Gateway**                      | Verifies the JWT (signature, expiry), extracts the `user_id` from it, and adds it to the request (e.g. as `X-User-Id: 12345`) before forwarding the request to the URL Service.                                                                                                                                     |
+| 3    | **URL Service**                      | Validates input (URL format, allowed schemes), normalizes the URL (e.g. strip tracking params), checks user quota, and deduplicates using `(user_id, normalized_long_url)` or via `Idempotency-Key`. Generates the short code **atomically** and saves it with the user's ID.                                       |
+| 4    | **URL Service → API Gateway → User** | On success: return `201 Created` with `Location: /me/urls/{id}` and the new short URL details. If a duplicate is found (e.g. same long URL already saved), return `200 OK` with existing resource.                                               |
