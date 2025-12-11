@@ -35,10 +35,21 @@ However, they are not identical. In the event that we need advanced capabilities
 
 2. Complex Data Structures (e.g., Sorted Sets), which allow for the efficient, real-time maintenance of leaderboards and advanced analytics directly within the cache layer.
 
-## Database (MySQL with Replication) - Note: clean this up:
+## Database (MySQL with Replication):
 
 The database permanently stores all user information and the link mapping data. MySQL is a solid, industry-standard choice.
 
-Required Data: 
+### Required Data: 
 
-User accounts, user-saved URLs, and the core short code $\rightarrow$ long URL mapping.Scaling & High AvailabilityWhile the estimated traffic (around 52 QPS hitting the database) is low, high availability (avoiding downtime) is essential.High Availability: A Master-Replica (Leader-Follower) setup will be used. This avoids a Single Point of Failure (SPOF) by having a copy of the database ready to take over immediately if the primary server fails.Traffic Offloading: The Master server handles all Writes (new link creation), and the Replica server handles the small number of Read queries (cache misses). This distribution ensures high performance and readiness for future growth.
+User accounts, user-saved URLs, and the core short code → long URL mapping
+
+### Scaling & High Availability
+**Note: Elaborate on why the QPS is 52**
+
+While the estimated traffic (around 52 QPS hitting the database) is low, high availability (avoiding downtime) is essential.
+
+**High Availability:**  
+A Master-Replica (Leader-Follower) setup will be used. This avoids a Single Point of Failure (SPOF) by having a copy of the database ready to take over immediately if the primary server fails.
+
+**Traffic Offloading:**  
+The Master server handles all Writes (new link creation), and the Replica server handles the small number of Read queries (cache misses). This distribution ensures high performance and readiness for future growth.
