@@ -44,12 +44,21 @@ The database permanently stores all user information and the link mapping data. 
 User accounts, user-saved URLs, and the core short code → long URL mapping
 
 ### Scaling & High Availability
-**Note: Elaborate on why the QPS is 52**
 
-While the estimated traffic (around 52 QPS hitting the database) is low, high availability (avoiding downtime) is essential.
+**QPS estimate:**
+
+- **Traffic estimate:** ~2M URL creations/day; redirects ~20M/day
+- **Write QPS**: 46 (Math: 2 million url creations/12 hours/60 mins/60 seconds)
+- **Read QPS**: 462 (Math: 20 million url creations/12 hours/60 mins/60 seconds)
+- **QPS**: Read + write QPS = ~500
+- **Peek QPS** = 2 * QPS = ~1000
+
+While the estimated traffic (around 1000 QPS hitting the database) is moderate, high availability (avoiding downtime) is essential.
+
+> Note: The QPS estimate that the database would see is much higher than what it's actually going to be since there's a cache that sits above it but I've ignored that to make estimates a bit less complicated
 
 **High Availability:**  
-A Master-Replica (Leader-Follower) setup will be used. This avoids a Single Point of Failure (SPOF) by having a copy of the database ready to take over immediately if the primary server fails.
+A Leader-Follower setup will be used. This avoids a Single Point of Failure by having a copy of the database ready to take over immediately if the primary server fails.
 
 **Traffic Offloading:**  
-The Master server handles all Writes (new link creation), and the Replica server handles the small number of Read queries (cache misses). This distribution ensures high performance and readiness for future growth.
+The Leader server handles all Writes (new link creation), and the Follower server handles the small number of Read queries (cache misses). This distribution ensures high performance and readiness for future growth.
