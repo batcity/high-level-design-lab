@@ -1,0 +1,1 @@
+![alt text](payment-system-architecture-diagram.png)
