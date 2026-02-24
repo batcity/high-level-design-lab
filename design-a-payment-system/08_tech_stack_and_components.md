@@ -2,15 +2,16 @@
 
 ## Load Balancer:
 
-The load balancer choice isn't hugely important here, any popular one would do; examples: HAProxy, Envoy etc
+The load balancer choice isn't hugely important here, any popular one would do; examples: HAProxy, Envoy, Cloudflare load balancer etc
 
 TODO: AI says a good load balancer for this scenario requires the following -> understand why?
 
-You want the load balancer to explicitly support:
-TLS termination -> here's a good writeup on TLS termination -> https://www.haproxy.com/glossary/what-is-ssl-tls-termination
-Request timeouts & circuit breaking
-Connection limits (protect downstream during provider slowness)
-Health checks with fast failover
+Ideally the load balancer should explicitly support the following features:
+
+- TLS termination -> here's a good writeup on TLS termination and its benefits -> https://www.haproxy.com/glossary/what-is-ssl-tls-termination
+- Request timeouts & circuit breaking
+- Connection limits (protect downstream during provider slowness)
+- Health checks with fast failover
 
 ## Payment Service:
 
