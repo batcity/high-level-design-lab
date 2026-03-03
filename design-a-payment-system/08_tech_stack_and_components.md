@@ -8,8 +8,11 @@ TODO: AI says a good load balancer for this scenario requires the following -> u
 
 Ideally the load balancer should explicitly support the following features:
 
-- TLS termination -> here's a good writeup on TLS termination and its benefits -> https://www.haproxy.com/glossary/what-is-ssl-tls-termination
+- TLS termination (Transport layer security) -> here's a good writeup on TLS termination and its benefits -> https://www.haproxy.com/glossary/what-is-ssl-tls-termination
+
 - Request timeouts & circuit breaking
+This video is a good resource on Request timeouts within the context of load balancers -> https://www.youtube.com/watch?v=uNjACLXoH5A
+
 - Connection limits (protect downstream during provider slowness)
 - Health checks with fast failover
 
