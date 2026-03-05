@@ -10,8 +10,23 @@ Ideally the load balancer should explicitly support the following features:
 
 - TLS termination (Transport layer security) -> here's a good writeup on TLS termination and its benefits -> https://www.haproxy.com/glossary/what-is-ssl-tls-termination
 
-- Request timeouts & circuit breaking
-This video is a good resource on Request timeouts within the context of load balancers -> https://www.youtube.com/watch?v=uNjACLXoH5A
+- Request timeouts
+
+    This video is a good resource on Request timeouts within the context of load balancers -> https://www.youtube.com/watch?v=uNjACLXoH5A
+
+    This is also a good resouce: https://my.f5.com/manage/s/article/K000146636
+
+    Here's the different types of Timeouts:
+
+    - Client/load balancer timeout
+
+      Each connection with the client takes up some resources, the load balancer should be able to close out unused connections so that these resources are reclaimed
+
+    - load balancer/Server timeout
+
+      Each connection with the server also takes up some resources, if the backend server takes too long to respond then the load balancer can enforce timeouts to prevent resource wastage
+
+-  Circuit breaking
 
 - Connection limits (protect downstream during provider slowness)
 - Health checks with fast failover
