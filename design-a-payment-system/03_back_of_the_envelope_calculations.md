@@ -27,7 +27,7 @@ we have the following transaction estimates from the assumptions:
 
 Each transaction would perform the following queries
 
-- write the transaction to the datastore with the idempotency key to ensure uniequeness
+- write the transaction to the datastore with the idempotency key to ensure uniqueness
 - If the write goes through, then attempt a payment transaction from sender to receiver -> but this query hits the external API
 - get the status of the transaction and update the transaction
 - **Note:** if the first write fails because a transaction exists already then we only return the status to the user - the first POC is not going to have retries

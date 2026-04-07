@@ -27,7 +27,7 @@ Each system write-up follows the same template for consistency:
 
 ---
 
-## 🚀 Why this repo?  
+## Why this repo?  
 
 - Build intuition for **scalability and reliability**.  
 - Practice **structured thinking** under interview-style time limits.  
