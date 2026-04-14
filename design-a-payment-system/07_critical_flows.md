@@ -4,6 +4,9 @@ This section documents the core end-to-end flows in a simple Payment system. It 
 
 ## 1. Payment flow:
 
+TODO: We're going to use a hybrid flow for payment processing (sync + async) -> Modify this flow  
+(See [FAQ](#faq) for why hybrid processing is needed)
+
 | Step | Component                             | Action                                            |
 | ---- | ------------------------------------- | ------------------------------------------------- |
 | 1    | **User → Payment service** | User submits a payment using a unique identifier representing this payment
@@ -60,3 +63,13 @@ Because of this, **reconciliation acts as a safety net**, ensuring our system ev
 | 3    | Job → Payment Service DB    | Compares provider state with internal state                                |
 | 4    | Job                         | Updates internal record if there’s a mismatch                              |
 | 5    | Job                         | Emits alerts / logs for irreconcilable mismatches                          |
+
+### FAQ:
+
+- Why use a hybrid system (sync + async for the payment flow)
+
+  Imagine the following scenario
+
+  User tries a payment -> the payment provider successfully completes the transaction -> then the request to the payment provider times out -> user sees payment failure -> retries the payment -> which would result in a duplicate payment
+
+  the hybrid system is designed to avoid this scenario
