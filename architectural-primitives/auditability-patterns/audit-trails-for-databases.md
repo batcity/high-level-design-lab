@@ -1,5 +1,4 @@
 # Audit trail for Databases:
-## TODO: Refine this document
 
 Several systems like payment systems for example would need to maintain an Audit trail (For things like regulatory compliance, Fraud detection and prevention etc). Considering this, the question is what is a good architectural pattern to maintain an audit trail for databases (this must be DB agnostic)
 
@@ -83,7 +82,7 @@ The event is appended to an "Event Store"—an append-only database. In this mod
 
 #### 3. State is Derived (The Read Model)
 The "Current Balance" is not stored in the Event Store. Instead, the state is derived by replaying the events. Since recalculating the balance from thousands of events for every query is inefficient, the system maintains a **Derived Table** specifically for high-speed reads.
-#
+
 ### Maintaining the Derived Table
 A "Projection" service listens to the event stream. Every time a `MoneyTransferred` event is persisted, the service immediately updates a standard relational table.
 
@@ -95,9 +94,34 @@ A "Projection" service listens to the event stream. Every time a `MoneyTransferr
 | User_B | **$20.00** | Seq 3 |
 | User_C | **$30.00** | Seq 4 |
 
-#### Key Advantages
+### Key Advantages of Event Sourcing:
+
 * **High Performance Reads:** Queries hit the Derived Table (e.g., `SELECT balance FROM AccountBalances WHERE userId = 'User_A'`), making reads nearly instantaneous.
 * **Auditability:** The Event Store provides a 100% accurate history of how the $50 balance was reached ($0 + $100 - $20 - $30).
 * **Reconstruction:** If the Derived Table is lost or corrupted, it can be completely rebuilt from scratch by replaying the Event Store from Sequence 1.
 
-#### TODO: Key Disadvantages
+### Key Disadvantages of Event Sourcing:
+
+#### 1. Added complexity of having to maintain an events table and a derived table, the devs also have to rethink the system in terms of events vs transactions
+
+#### 2. Event Schema Evolution (Versioning)
+As business requirements change, the structure of your events will evolve. Since the Event Store is **immutable**, you cannot modify historical events to match a new schema.
+* **The Challenge:** If you add a mandatory field to a `UserRegistered` event, your code must still be able to process the "Version 1" events from three years ago that lack that field.
+* **Solutions:** This requires complex strategies like **Upcasting** (a middleware that transforms old events into the current version before they reach the application) or maintaining multiple versions of event handlers.
+
+
+#### 3. Eventual Consistency
+In Event Sourcing, the "Write Model" (Event Store) and "Read Model" (Derived Table) are decoupled.
+* **The Challenge:** There is a slight delay (latency) between persisting an event and updating the projection. A user might perform an action and immediately refresh the page, only to see their "old" state because the projection hasn't caught up.
+* **Impact:** This requires more complex frontend development, such as **Optimistic UI updates**, to hide the lag from the user.
+
+
+#### 4. Querying Limitations
+The Event Store is an append-only list; it is not designed for searching or filtering.
+* **The Challenge:** You cannot run a query like `SELECT * FROM Events WHERE Amount > 1000` efficiently. 
+* **Dependency:** You are 100% dependent on your Projections (Derived Tables). If you realize you need a new way to look at your data, you have to create a new projection and **replay the entire history** of the event store to populate it, which can be time-consuming for large datasets.
+
+#### 5. External System Side Effects
+Events represent things that *already happened*. When replaying events to rebuild a state or create a new projection, you must be careful not to trigger external actions.
+* **The Pitfall:** If an event handler sends a confirmation email or hits a third-party payment API, replaying those events during a system migration could result in thousands of duplicate emails or charges.
+* **Requirement:** All external side effects must be made **Idempotent** or designed to recognize the difference between a "live" event and a "replayed" event.
