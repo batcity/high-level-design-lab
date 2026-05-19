@@ -1,21 +1,6 @@
 # Tradeoffs and alternatives:
 
-# How to Think About Trade-offs & Alternatives
-
-Trade-offs are easier to identify when thinking in terms of **system pressures** rather than technologies.
-
-Every architecture decision optimizes for something while sacrificing something else.
-
-Examples of common pressures:
-
-- Latency
-- Scalability
-- Consistency
-- Availability
-- Cost
-- Operational simplicity
-- Developer velocity
-- Flexibility
+Think in terms of system pressures
 
 A useful way to discover trade-offs is to repeatedly ask:
 
@@ -26,24 +11,39 @@ A useful way to discover trade-offs is to repeatedly ask:
 5. What does this system optimize for?
 6. When would this design stop working?
 
-Examples:
+## API Gateway
 
-| Choice | Optimizes For | Trade-off |
-|---|---|---|
-| Redis cache | Low latency | Stale data / cache invalidation |
-| Kafka | Throughput & decoupling | Operational complexity |
-| Cassandra | High write scalability | Eventual consistency |
-| Global DB | Strong consistency | Higher latency |
-| Microservices | Independent scaling | Distributed system complexity |
+**Current choice:** kong
 
-A good trade-offs section should explain:
+**What problem does this choice solve:** The Idea is to distribute traffic across different servers in order to handle a large number of users, the additional benefit here is reliability since having a single web server would introduce a single point of failure
 
-- Why a design was chosen
-- What constraints influenced the decision
-- What downsides were knowingly accepted
-- What alternatives were considered
-- Under what future conditions the decision should be revisited
+So it addresses two major system pressures
 
-A helpful mindset:
+- Reliability
+- Throughput / Traffic
 
-> “What pain is this design avoiding, and what pain is it accepting instead?”
+Also think about why you chose a gateway instead of a load balancer
+
+**What new problem does this choice create:** I've substituted one single point of failure for another here, if the API gateway is down then the entire service would be down
+
+I've also introduced additional complexity since devs would need to maintain the API gateway
+
+**What simpler alternative exists?** 
+
+
+
+
+
+## URL shortener service, User Authenticaton Service
+
+current choice: Java + Spring boot
+
+
+## Cache
+
+current choice: Redis
+
+## Database:
+
+current choice: Mysql with replication
+

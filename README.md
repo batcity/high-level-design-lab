@@ -8,9 +8,22 @@ Each folder covers a different system (e.g., WhatsApp, YouTube, Twitter), docume
 
 ⚡ **Note:** These designs are for **learning and discussion** purposes. I’ve used a mix of research, reading, and AI-assisted reasoning to refine them.  
 
----
 
-## 📂 Study Notes Structure  
+## Repository Structure
+
+The repo is split into a few major sections:
+
+```txt
+design-*/                     -> Complete system design case studies
+architectural-primitives/     -> Reusable distributed systems patterns
+implementations/              -> Small implementation examples / experiments
+cheat-sheets/                 -> Quick reference notes
+```
+
+
+
+## System Design Case Studies
+
 
 Each system write-up follows the same template for consistency:  
 
@@ -25,7 +38,11 @@ Each system write-up follows the same template for consistency:
 9. **Trade-offs & alternatives** – Different approaches and design choices.  
 10. **Extensions / next steps** – Features or improvements not in v1.  
 
----
+## Architectural Primitives
+
+The `architectural-primitives/` folder contains reusable concepts and patterns that appear across many distributed systems.
+
+These are the **building blocks** used repeatedly in larger architectures.
 
 ## Why this repo?  
 
