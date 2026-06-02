@@ -86,6 +86,8 @@ I'm actually not completely sure, I keep reading that Java + Spring boot is what
 
 ### Verify this, check what an idle spring boot docker container uses in terms of memory and do the same thing for go
 
+I've verified that difference in memory usage, here's the comparison: https://github.com/batcity/go-gin-vs-java-spring-boot-memory-comparison
+
 URL Shortener Service & User Authentication Service
 Current choice: Go (Golang) + Gin Framework
 
