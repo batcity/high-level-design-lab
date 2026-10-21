@@ -110,6 +110,147 @@ https://github.com/batcity/go-gin-vs-java-spring-boot-memory-comparison
 current choice: Redis
 
 ### **What problem does this choice solve:**
+
+This choice solves the latency problem when users query the URL shortener service, reading from the DB is a much slower process since it's typically on permanent storage like an SSD. Loading up the data in an in memory db like REDIS in addition to the permanent storage would make queries much faster
+
+### **What new problems does this choice create:**
+
+It creates the following problems:
+
+- we're going to have to maintain a redis server in addition to the existing database
+- we're going to have to come up with a cache eviction strategy since the in memory db might not be able to hold all the data we need
+
+### **What simpler alternative exists?**
+
+Perhaps using an AWS managed key value store like Dynamodb that has both permanent storage and an in memory cache built on top would make things a bit simpler
+
+### **Why wasn’t the simpler option enough?**
+
+Actually I'm not sure here, I think the simpler option might be the better one, although I haven't reviewed the cost structure for dynamodb
+
+### **What's the tradeoff here:**
+
+Tradeoff ofcourse is additional complexity for lower latency
+
+**Pros:**
+
+- Lower latency for queries
+
+**Cons & Mitigations:**
+
+- Higher complexity
+
+**TODO:**
+
+# Take a look at these recommendations from gemini
+
+Across the URL shortener files (`08_tech_stack_and_components.md`, `09_WIP_tradeoffs_and_alternatives.md`, `07_critical_flows.md`, and the architecture diagram), the cache section has a solid foundation, but there are several critical design gaps, contradictory notes, and missed opportunities.
+
+---
+
+### 1. Strengths in the Current Design
+
+* **Sensible Tool Choice:** Selecting Redis over Memcached for click-tracking atomic increments (`INCR`) and analytics sets (`Sorted Sets`) is a standard, production-ready justification.
+* **Separation of Concerns:** The cache isolates the read-heavy redirect path (estimated at 10:1 to 20:1 reads vs. writes) from the relational database.
+
+---
+
+### 2. Disconnects & Contradictions
+
+* **Cache Missing from Critical Flows:**
+* In `07_critical_flows.md` under **Step 2 (Redirect User)**:
+> *"Looks up the short code (`xyz`) in the data store to retrieve the original long URL."*
+
+
+* It mentions the generic "data store" and does not specify **Cache-Aside (read-through)** semantics (check Redis first, fallback to MySQL on miss, hydrate cache).
+
+
+* **Diagram Flow Ambiguity:**
+* In `URL-shortener-system-design.excalidraw`, the arrow leads from `URL shortener Service` to `Cache`, and then from `Cache` directly to `Database`.
+* In application-level caching (Redis), the application service typically queries Redis; if it misses, the **application** reads MySQL and populates Redis. Redis does not natively act as an intermediary forwarder to MySQL unless an active cache/read-through proxy layer is implemented.
+
+
+* **DynamoDB Comparison in Tradeoffs:**
+* In `09_WIP_tradeoffs_and_alternatives.md`, under simpler alternatives, you wrote:
+> *"Perhaps using an AWS managed key value store like Dynamodb that has both permanent storage and an in memory cache built on top... Actually I'm not sure here, I think the simpler option might be the better one..."*
+
+
+* **The reality:** DynamoDB + DAX (DynamoDB Accelerator) is indeed a fully managed NoSQL alternative, but DAX is expensive, provisioned, and adds VPC routing complexity. More importantly, using Redis + MySQL retains relational access for user dashboards (`user_id` foreign keys, joins, and pagination), which DynamoDB makes clunkier without carefully planned Global Secondary Indexes (GSIs).
+
+
+
+---
+
+### 3. Critical Sizing & Strategy Gaps
+
+#### Eviction Strategy & Capacity
+
+* **Policy:** You mentioned needing an eviction strategy in the tradeoffs file, but haven't chosen one. **LRU (Least Recently Used) / `allkeys-lru**` is the gold standard here because URL popularity follows a steep 80/20 Pareto distribution (most clicks hit recent or viral links).
+* **RAM Sizing (The 80/20 Rule):**
+* Traffic assumptions state 20M redirects/day.
+* 20% of active daily links generate 80% of redirect traffic: $20\text{M} \times 0.20 = 4\text{M}$ URLs/day.
+* Memory per cache entry (key + value + metadata overhead): $\approx 250$ bytes.
+* Daily working set memory: $4\text{M} \times 250\text{ bytes} \approx 1\text{ GB}$.
+* With a conservative 2-day hot cache + Redis overhead, an **8 GB to 16 GB Redis cluster** easily caches virtually all active redirect traffic.
+
+
+
+#### Missing Cache Failure & Concurrency Protections
+
+* **Cache Stampede (Thundering Herd):** If a viral link expires or gets evicted and thousands of concurrent requests miss simultaneously, they will all hammer the MySQL follower replica. **Solution:** Distributed locking (e.g., Redis mutex) or single-flight/probabilistic early expiration (XFetch).
+* **Cache Penetration (Lookup of Non-Existent Keys):** If malicious actors generate millions of random nonexistent short URLs, every request bypasses Redis and hits the database. **Solution:** Store empty/null values with a short TTL (e.g., 2–5 minutes) or place a **Bloom filter** at the API Gateway/Service layer.
+* **Write Pattern:** Specify whether you want:
+* **Cache-Aside:** Simple, reads populate the cache, but initial read incurs DB latency.
+* **Write-Through / Write-Around:** If writes are cached immediately upon link creation, read latency on first click drops to sub-millisecond levels.
+
+
+
+---
+
+### Recommended Updates to `09_WIP_tradeoffs_and_alternatives.md`
+
+Replace the placeholder/uncertain text in your cache tradeoffs section with:
+
+```markdown
+## Cache
+
+**Current choice:** Redis (Cluster mode, with replication)
+
+### What problem does this choice solve:
+Drastically cuts redirect latency (P95 target < 100 ms) by serving ~80-90% of redirection requests directly from RAM instead of persistent disk storage (MySQL). It also provides native atomic data structures (`INCR`, `ZSET`) for real-time link access metrics.
+
+### What new problem does this choice create:
+- Memory management & cache eviction overhead.
+- Dual-source consistency (stale URLs if links can be updated/deleted).
+- Risk of cache stampede or penetration under high load.
+
+### What simpler alternative exists?
+- Memcached (pure key-value, multi-threaded).
+- DynamoDB with DAX (fully managed integrated database + cache).
+
+### Why wasn’t the simpler option enough?
+- Memcached lacks native atomic increments and complex data structures needed for analytics without external distributed locks.
+- DynamoDB + DAX eliminates MySQL maintenance, but makes relational user dashboards (e.g., paginating/sorting user links by creation date) more rigid and expensive to query compared to indexed MySQL queries.
+
+### What's the tradeoff here:
+Accepting operational complexity (managing Redis replication, failovers, and cache coherency) in exchange for single-digit millisecond redirect latency and flexible analytics data structures.
+
+**Pros:**
+- Ultra-low latency lookups (sub-5 ms).
+- Reduces MySQL read traffic from 5,000 peak QPS to low hundreds.
+
+**Cons & Mitigations:**
+- **Cache Eviction / OOM:** Configure maxmemory policy to `allkeys-lru` with a standard 8–16 GB memory footprint based on the 80/20 traffic rule.
+- **Cache Penetration:** Cache null/empty entries with a short TTL (60s) or front with a Bloom filter.
+- **Cache Stampede:** Use singleflight request deduplication on the URL shortener application nodes.
+
+```
+
+## Database:
+
+current choice: Mysql with replication
+
+### **What problem does this choice solve:**
 ### **What new problem does this choice create:**
 ### **What simpler alternative exists?**
 ### **Why wasn’t the simpler option enough?**
@@ -117,8 +258,3 @@ current choice: Redis
 
 **Pros:**
 **Cons & Mitigations:**
-
-## Database:
-
-current choice: Mysql with replication
-
